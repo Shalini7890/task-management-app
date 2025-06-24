@@ -1,0 +1,46 @@
+### Health check
+GET http://localhost:5000/api/health
+
+### Register a new user
+POST http://localhost:5000/api/auth/register
+Content-Type:application/json
+{
+    "email":"s.shalini.tech@gmail.com",
+    "name":"Shalini",
+    "password":"Aum2023"
+}
+
+
+### Login user
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+{
+    "email":"s.shalini.tech@gmail.com",
+    "password":"Aum2023"
+}
+
+
+### Get all tasks
+POST http://localhost:5000/api/tasks
+Authorization: Bearer c3353126f89a38f3af017a4ab5b08953f2b731b983dc1fcc7e9ed76ec250f5b5c406174867cd9bf8d85afc40c25913c2069112a294cc4989639c991a1d359193
+
+### Create new task
+POST http://localhost:5000/api/tasks
+Authorization: Bearer c3353126f89a38f3af017a4ab5b08953f2b731b983dc1fcc7e9ed76ec250f5b5c406174867cd9bf8d85afc40c25913c2069112a294cc4989639c991a1d359193
+Content-Type: application/json
+{
+    "title": "Complete backend development",
+  "description": "Finish all API endpoints for task management",
+  "priority": "high",
+  "dueDate": "2024-07-01"
+}
+### Update task status
+PATCH http://localhost:5000/api/tasks/TASK_ID_HERE/status
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "status": "in-progress"
+}
+
+
