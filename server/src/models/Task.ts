@@ -18,8 +18,10 @@ const taskSchema = new Schema(
         title: {type: String, required: [true, 'Title is required'], trim: true, maxlength: [100, 'Title should not be more than 100 characters']},
         description: {type: String, required: [true, 'Description is required'], trim: true, maxlength: [300, 'Description should not be more than 300 characters']},
         status: { type: String, enum:['to-do', 'in-progress', 'done']},
-        priority: {type: String, enum: ['high', 'mdeium', 'low']},
-        userId:{type: mongoose.Types.ObjectId, ref:'User', required: true}
+        priority: {type: String, enum: ['high', 'medium', 'low']},
+        userId:{type: mongoose.Types.ObjectId, ref:'User', required: true},
+        dueDate: {type: Date, required: false // Make sure it's optional
+  }
 
     },
 {

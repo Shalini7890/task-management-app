@@ -9,12 +9,12 @@ router.use(authenticateToken);
 //get all tasks for current user
 router.get('/', async(req: AuthRequest, res: any) => {
     try{
-        const {user} = req.body;
-        const tasks = await Task.find({userId: user._id}).sort({createdAt: -1});
+        // const {user} = req.body;
+        const tasks = await Task.find({userId: req.user!._id}).sort({createdAt: -1});
         res.json({message: 'tasks retrieved for the given user',tasks});
     }
     catch(error: any) {
-        console.error('Error in');
+        console.error('Error in getting tasks', error);
         res.status(500).json({message: 'Error getting tasks'});        
     }
 });
@@ -30,11 +30,12 @@ router.post('/', async(req: AuthRequest, res: any) => {
             title:title.trim(),
             description:description.trim(),
             priority:priority || 'medium',
-            dueDate:dueDate ? new Date(dueDate) : undefined,
-            userId:req.user!._id
+            dueDate: dueDate && dueDate.trim() ? new Date(dueDate) : undefined,
+            userId:req.user!._id,
+            status:'to-do'
         });
         await task.save();
-        res.status(201).json({message:'Task created successfully'},task);
+        res.status(201).json({message:'Task created successfully',task});
         
     } catch (error: any) {
         console.error(error);
@@ -43,18 +44,18 @@ router.post('/', async(req: AuthRequest, res: any) => {
 });
 
 //update existing task
-router.post('/:id', async(req:AuthRequest,res:any) => {
+router.put('/:id', async(req:AuthRequest,res:any) => {
     try {
         const {title, description, status, priority, dueDate} = req.body;
         const task = await Task.findOneAndUpdate({
             _id: req.params.id,
-            userId: req.user!.id
+            userId: req.user!._id
         },{
             title: title?.trim(),
             description: description?.trim(),
             status: status,
             priority,
-            dueDate: dueDate ? new Date(dueDate) : undefined
+            dueDate: dueDate && dueDate.trim() ? new Date(dueDate) : undefined
         },
         {
             new: true,
@@ -62,9 +63,9 @@ router.post('/:id', async(req:AuthRequest,res:any) => {
         }
     );
     if (!task) {
-        res.status(404).json({message:'Task not found'})
+        return res.status(404).json({message:'Task not found'})
     }
-    res.json({message:'task updated successfully'})
+    res.json({message:'task updated successfully', task});
     } catch (error) {
         console.error(error);
         res.status(500).json({message:'Updation failed'});
@@ -78,7 +79,7 @@ router.patch('/:id/status', async(req:AuthRequest, res:any) => {
     try {
         const {status} = req.body;
         if(!['to-do', 'in-progress', 'done'].includes(status)){
-            res.status(400).json({message:'Include only a status from this list : to-do, in-progress or done'});
+            return res.status(400).json({message:'Include only a status from this list : to-do, in-progress or done'});
         }
         const task = await Task.findOneAndUpdate({
             _id: req.params.id,
@@ -87,9 +88,9 @@ router.patch('/:id/status', async(req:AuthRequest, res:any) => {
         { new: true }
     );
     if(!task) {
-        res.status(400).json({message:'task not found'})
+        return res.status(400).json({message:'task not found'})
     }
-    res.json({message:'Task status updated successfully'});
+    res.json({message:'Task status updated successfully', task});
         
     } catch (error: any) {
         console.error(error);
@@ -102,7 +103,7 @@ router.patch('/:id/status', async(req:AuthRequest, res:any) => {
 router.delete('/:id', async(req:AuthRequest, res: any) => {
     try {
         const task = await Task.findOneAndDelete({
-            id:req.params.id,
+            _id:req.params.id,
             userId:req.user!._id
         });
 
